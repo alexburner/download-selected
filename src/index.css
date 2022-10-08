@@ -11,7 +11,7 @@
   -webkit-text-size-adjust: 100%;
 
   --hover-color: #f8f8f8;
-  --select-color: #eee;
+  --selected-color: #eee;
   --border-color: #ddd;
   --border-style: 1px solid var(--border-color);
 }
@@ -26,6 +26,10 @@ body {
   padding: 0;
 }
 
+/**
+ * Site-wide elements
+ */
+
 button {
   padding: 0.25em 0.5em;
   font-size: inherit;
@@ -39,12 +43,25 @@ button:hover {
   background-color: var(--hover-color);
 }
 
+label,
+input[type='checkbox'] {
+  cursor: pointer;
+}
+
+/**
+ * Page container
+ */
+
 .container {
   margin: 40px auto;
   width: 70%;
   min-width: 600px;
   max-width: 1400px;
 }
+
+/**
+ * Download Table
+ */
 
 .download-table {
   border: var(--border-style);
@@ -53,13 +70,13 @@ button:hover {
 
 .download-table .header {
   display: flex;
-  align-items: baseline;
-  padding: 0.8em 0;
+  align-items: center;
+  height: 3em;
   font-size: 1.25em;
 }
 
 .download-table .header > *:not(:last-child) {
-  margin-right: 2em;
+  margin-right: 2.5em;
 }
 
 .download-table table {
@@ -95,7 +112,9 @@ button:hover {
   padding-left: 15px;
 }
 
-/* Row hover/select */
+/**
+ * Download Table row hover/select
+ */
 
 .download-table table tbody tr {
   cursor: pointer;
@@ -105,7 +124,13 @@ button:hover {
   background-color: var(--hover-color);
 }
 
-/* Status Cell */
+.download-table table tbody tr.selected {
+  background-color: var(--selected-color);
+}
+
+/**
+ * Status Cell
+ */
 
 .status-cell {
   display: flex;
