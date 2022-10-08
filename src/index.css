@@ -10,9 +10,9 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
-  --hover-color: #f8f8f8;
-  --selected-color: #eee;
-  --border-color: #ddd;
+  --hover-color: hsl(0deg 0% 98%);
+  --selected-color: hsl(0deg 0% 94%);
+  --border-color: hsl(0deg 0% 86%);
   --border-style: 1px solid var(--border-color);
 }
 
@@ -124,7 +124,8 @@ input[type='checkbox'] {
   background-color: var(--hover-color);
 }
 
-.download-table table tbody tr.selected {
+.download-table table tbody tr.selected,
+.download-table table tbody tr.selected:hover td {
   background-color: var(--selected-color);
 }
 
@@ -135,11 +136,15 @@ input[type='checkbox'] {
 .status-cell {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .status-cell .available-dot {
   --dot-size: 1.2em;
-  margin-left: 0.5em;
+  position: absolute;
+  right: calc(100% + 0.5em);
+  top: 50%;
+  transform: translateY(-50%);
   width: var(--dot-size);
   height: var(--dot-size);
   border-radius: var(--dot-size);

@@ -8,81 +8,49 @@ import {
 } from 'react'
 import { FaDownload } from 'react-icons/fa'
 import { TableItem } from '../data'
-import { capitalize } from '../util'
+import { capitalize, downloadItems } from '../util'
 
+/**
+ * Assumption: tableItem.name is unique, and can be used as a primary key
+ * (could also use compound keys, like name+device. Or just generate a local id)
+ */
 type SelectedNames = Set<TableItem['name']>
 
 export const DownloadTable: FC<{ items: TableItem[] }> = ({ items }) => {
   const [selectedNames, setSelectedNames] = useState<SelectedNames>(new Set())
 
   /**
-   * Toggle a name's selected state
+   * Toggle an item's selected state, by name
    */
   const toggleName = (name: TableItem['name']) => {
     const nextSelectedNames = new Set(selectedNames)
-    selectedNames.has(name)
+    nextSelectedNames.has(name)
       ? nextSelectedNames.delete(name)
       : nextSelectedNames.add(name)
     setSelectedNames(nextSelectedNames)
   }
 
   /**
-   * "Download" all selected items
-   *
-   * Note: only status=available items are downloaded.
-   * This could also be achieved more structurally through the UI, by disabling
-   * hover & selection of !available items. However, the mockup showed !available
-   * items as still having enabled checkboxes and hover states.
+   * Download selected items
    */
-  const downloadItems = () => {
-    const availableItems: TableItem[] = []
-    const unavailableItems: TableItem[] = []
-    items.forEach((item) => {
-      if (!selectedNames.has(item.name)) return
-      item.status === 'available'
-        ? availableItems.push(item)
-        : unavailableItems.push(item)
-    })
-
-    const lines: string[] = []
-    if (availableItems.length) {
-      lines.push('Downloading available items:')
-      availableItems.forEach((item) =>
-        lines.push(`  ${item.device}: ${item.path}`),
-      )
-      // Fence post
-      if (unavailableItems.length) lines.push('')
-    }
-    if (unavailableItems.length) {
-      lines.push('Skipping unavailable items:')
-      unavailableItems.forEach((item) =>
-        lines.push(`  ${item.device}: ${item.path}`),
-      )
-    }
-
-    const message = lines.join('\n')
-    alert(message)
+  const downloadSelectedItems = () => {
+    const selectedItems = items.filter((item) => selectedNames.has(item.name))
+    downloadItems(selectedItems)
   }
 
   return (
     <div className="download-table">
       <div className="header">
         <div className="select-all">
-          <label>
-            <SelectAllCheckbox
-              allNames={items.map((item) => item.name)}
-              selectedNames={selectedNames}
-              setSelectedNames={setSelectedNames}
-            />
-            &nbsp;{' '}
-            {selectedNames.size > 0
-              ? `Selected ${selectedNames.size}`
-              : 'None Selected'}
-          </label>
+          <SelectAllCheckbox
+            allNames={items.map((item) => item.name)}
+            selectedNames={selectedNames}
+            setSelectedNames={setSelectedNames}
+          />
         </div>
         {selectedNames.size > 0 && (
           <div>
-            <button onClick={downloadItems}>
+            <button onClick={downloadSelectedItems}>
               <FaDownload />
               &nbsp; Download Selected
             </button>
@@ -140,21 +108,31 @@ const SelectAllCheckbox: FC<{
   useEffect(() => {
     if (!checkboxRef.current) return
     // Set checkbox as "indeterminate" if only some items are selected
+    // Note: indeterminate is a prop, not an attr, so we use an el ref
+    // -> https://stackoverflow.com/a/52859693
     checkboxRef.current.indeterminate = someNamesSelected
   }, [someNamesSelected])
 
   return (
-    <input
-      ref={checkboxRef}
-      type="checkbox"
-      checked={allNamesSelected}
-      onChange={(e) => {
-        // Select all or none
-        e.target.checked
-          ? setSelectedNames(new Set(allNames))
-          : setSelectedNames(new Set())
-      }}
-    />
+    <label>
+      <input
+        ref={checkboxRef}
+        type="checkbox"
+        checked={allNamesSelected}
+        onChange={(e) => {
+          // Select all or none
+          e.target.checked
+            ? setSelectedNames(new Set(allNames))
+            : setSelectedNames(new Set())
+        }}
+      />
+      &nbsp;{' '}
+      {allNamesSelected
+        ? 'All Selected'
+        : someNamesSelected
+        ? `Selected ${selectedNames.size}`
+        : 'None Selected'}
+    </label>
   )
 }
 
